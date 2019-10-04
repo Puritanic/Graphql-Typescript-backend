@@ -4,6 +4,7 @@ import { hash, compare } from 'bcryptjs';
 import { User } from './entity/User';
 import { MyContext } from './MyContext';
 import { createAccessToken, createRefreshToken } from './auth';
+import { sendRefreshToken } from './sendRefreshToken';
 import { isAuth } from './isAuth';
 
 @ObjectType()
@@ -62,13 +63,10 @@ export class UserResolver {
 		if (!valid) {
 			throw new Error('Invalid Login');
 		}
+
 		// Refresh token cookie
-		res.cookie(
-			'jid',
-			createRefreshToken(user),
-			// with httpOnly set to true cookie cannot be accessed by js
-			{ httpOnly: true }
-		);
+		// with httpOnly set to true cookie cannot be accessed by js
+		sendRefreshToken(res, createRefreshToken(user));
 
 		// login successful, give user an access token so that stay logged in and that they can access other parts of the website
 		return {
