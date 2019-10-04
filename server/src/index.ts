@@ -1,6 +1,10 @@
 import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
+
+import { UserResolver } from "./UserResolvers";
 // import { ApolloLink } from "apollo-link";
 // import {createConnection} from "typeorm";
 // import {User} from "./entity/User";
@@ -12,23 +16,21 @@ import { ApolloServer } from "apollo-server-express";
     res.send("Hello from root!");
   });
 
+  await createConnection();
+
   const apolloServer = new ApolloServer({
-    typeDefs: `
-        type Query {
-            hello: String!
-        }
-        `,
-    resolvers: {
-      Query: {
-        hello: () => "Hello World"
-      }
-    }
+    schema: await buildSchema({
+      resolvers: [UserResolver]
+    })
   });
 
   apolloServer.applyMiddleware({ app });
 
   app.listen(4000, () => {
-    console.log("Server up and running on port 4000!!!");
+    console.log("Server up and running on http://localhost:4000/ ");
+    console.log(
+      "GraphQL server up and running on http://localhost:4000/graphql"
+    );
   });
 })();
 
