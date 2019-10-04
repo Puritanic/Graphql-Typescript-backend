@@ -27,7 +27,10 @@ import { UserResolver } from "./UserResolvers";
   apolloServer.applyMiddleware({ app });
 
   app.listen(4000, () => {
-    console.log("Server up and running on port 4000!!!");
+    console.log("Server up and running on http://localhost:4000/ ");
+    console.log(
+      "GraphQL server up and running on http://localhost:4000/graphql"
+    );
   });
 })();
 
