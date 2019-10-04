@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -12,16 +13,19 @@ import { UserResolver } from "./UserResolvers";
 (async () => {
   const app = express();
 
-  app.get("/", (_, res) => {
+  app.get("/", (_req, res) => {
     res.send("Hello from root!");
   });
 
   await createConnection();
 
+  console.log(process.env.ACCESS_TOKEN_SECRET);
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver]
-    })
+    }),
+    context: ({ req, res }) => ({ req, res })
   });
 
   apolloServer.applyMiddleware({ app });
