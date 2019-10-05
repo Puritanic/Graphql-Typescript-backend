@@ -5,6 +5,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import { UserResolver } from './UserResolvers';
 import { verify } from 'jsonwebtoken';
@@ -17,6 +18,7 @@ import { sendRefreshToken } from './sendRefreshToken';
 (async () => {
 	const app = express();
 
+	app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 	app.use(cookieParser());
 
 	app.get('/', (_req, res) => {
@@ -70,7 +72,7 @@ import { sendRefreshToken } from './sendRefreshToken';
 		context: ({ req, res }) => ({ req, res }),
 	});
 
-	apolloServer.applyMiddleware({ app });
+	apolloServer.applyMiddleware({ app, cors: false });
 
 	app.listen(4000, () => {
 		console.log('Server up and running on http://localhost:4000/ ');
