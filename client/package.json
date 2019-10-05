@@ -9,7 +9,9 @@
     "@types/react": "16.9.5",
     "@types/react-dom": "16.9.1",
     "apollo-boost": "^0.4.4",
+    "apollo-link-token-refresh": "^0.2.6",
     "graphql": "^14.5.8",
+    "jwt-decode": "^2.2.0",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",
@@ -39,10 +41,11 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.8.0",
-    "@types/graphql": "^14.5.0",
+    "@graphql-codegen/introspection": "1.8.0",
     "@graphql-codegen/typescript": "1.8.0",
     "@graphql-codegen/typescript-operations": "1.8.0",
     "@graphql-codegen/typescript-react-apollo": "1.8.0",
-    "@graphql-codegen/introspection": "1.8.0"
+    "@types/graphql": "^14.5.0",
+    "@types/jwt-decode": "^2.2.1"
   }
 }
