@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Arg, ObjectType, Field, Ctx, UseMiddleware } from 'type-graphql';
+import { Resolver, Query, Mutation, Arg, ObjectType, Field, Ctx, UseMiddleware, Int } from 'type-graphql';
 import { hash, compare } from 'bcryptjs';
 
 import { User } from './entity/User';
@@ -6,6 +6,7 @@ import { MyContext } from './MyContext';
 import { createAccessToken, createRefreshToken } from './auth';
 import { sendRefreshToken } from './sendRefreshToken';
 import { isAuth } from './isAuth';
+import { getConnection } from 'typeorm';
 
 @ObjectType()
 class LoginResponse {
@@ -29,6 +30,16 @@ export class UserResolver {
 	@Query(() => [User])
 	users() {
 		return User.find();
+	}
+
+	// This is usually not being done via mutations. It would be better to create a function that user can call in case they forgets pass or if someones acc got hacked
+	@Mutation(() => Boolean)
+	async revokeRefreshTokensForUser(@Arg('userId', () => Int) userId: number) {
+		await getConnection()
+			.getRepository(User)
+			.increment({ id: userId }, 'tokenVersion', 1);
+
+		return true;
 	}
 
 	@Mutation(() => Boolean)
