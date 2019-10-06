@@ -7,11 +7,14 @@ import { createAccessToken, createRefreshToken } from './auth';
 import { sendRefreshToken } from './sendRefreshToken';
 import { isAuth } from './isAuth';
 import { getConnection } from 'typeorm';
+import { verify } from 'jsonwebtoken';
 
 @ObjectType()
 class LoginResponse {
 	@Field()
 	accessToken: string;
+	@Field(() => User)
+	user: User;
 }
 
 @Resolver()
@@ -32,12 +35,39 @@ export class UserResolver {
 		return User.find();
 	}
 
+	@Query(() => User, { nullable: true })
+	me(@Ctx() context: MyContext) {
+		const authorization = context.req.headers['authorization'];
+
+		if (!authorization) {
+			return null;
+		}
+
+		try {
+			const token = authorization.split(' ')[1];
+			const payload: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+			context.payload = payload;
+
+			return User.findOne(payload.userId);
+		} catch (error) {
+			console.log(error);
+			return null;
+		}
+	}
+
 	// This is usually not being done via mutations. It would be better to create a function that user can call in case they forgets pass or if someones acc got hacked
 	@Mutation(() => Boolean)
 	async revokeRefreshTokensForUser(@Arg('userId', () => Int) userId: number) {
 		await getConnection()
 			.getRepository(User)
 			.increment({ id: userId }, 'tokenVersion', 1);
+
+		return true;
+	}
+
+	@Mutation(() => Boolean)
+	async logout(@Ctx() { res }: MyContext) {
+		sendRefreshToken(res, '');
 
 		return true;
 	}
@@ -82,6 +112,7 @@ export class UserResolver {
 		// login successful, give user an access token so that stay logged in and that they can access other parts of the website
 		return {
 			accessToken: createAccessToken(user),
+			user,
 		};
 	}
 }
